@@ -2,10 +2,10 @@
 	"emitters": [
 		{
 			"description":"Entrance",
-			"position":"6.3, 2.0, -1.8",
+			"position":"6.26, 2.10, -1.28",
 			"orientation":"south",
-			"size": 2,
-			"cover": 0
+			"size": 1,
+			"cover": 1
 		},
 		{
 			"description":"Entrance",
@@ -18,14 +18,14 @@
 			"description":"Ceiling Stairs",
 			"position":"-8.0, 14.3, -2.7",
 			"orientation":"east",
-			"size": 2,
+			"size": 1.4,
 			"cover": 0
 		},
 		{
 			"description":"Ceiling Stairs",
 			"position":"-12.6, 14.3, -2.7",
 			"orientation":"east",
-			"size": 2,
+			"size": 1.4,
 			"cover": 0
 		},
 		{
