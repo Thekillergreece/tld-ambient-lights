@@ -3,7 +3,31 @@ This mod aims to modify the default lightning for interiors with windows, making
 These lights are just ambiental and not "real" lights, so to craft or do things at night you will still need a lightsource just like in the base game.
 
 ## Installation
-* Read the [installation instructions on the modlist](https://xpazeman.com/tld-mod-list/install.html)
+This compatibility update targets **The Long Dark Survival 2.60**, **MelonLoader 0.7.2**, and **ModSettings 2.2.5** on Windows (IL2CPP, .NET 6).
+
+1. Install [MelonLoader](https://github.com/LavaGang/MelonLoader) and [ModSettings](https://github.com/DigitalzombieTLD/ModSettings). Launch the updated game once so MelonLoader generates its interop assemblies.
+2. Close the game. Extract the release ZIP into the game's `Mods` directory. It must contain both `AmbientLights.dll` and the `ambient-lights` directory next to it.
+3. Start Survival and open **Options > Mod Settings > Ambient Lights Settings**.
+
+Existing scene mappings are retained. New interiors without a matching `scene_*.json` use the game's lighting; this update does not add Iron Road interior mappings. Wintermute and Episode Five are not validation targets.
+
+## Building
+
+Install the .NET 6 SDK or a newer SDK capable of targeting .NET 6. The default game path is `C:/Program Files (x86)/Steam/steamapps/common/TheLongDark`. For another Steam library, pass the game directory explicitly:
+
+```powershell
+dotnet build AmbientLights.csproj -c Release '-p:TheLongDarkPath=E:/SteamLibrary/steamapps/common/TheLongDark'
+```
+
+You can also set the `TLD_GAME_PATH` environment variable. The build requires MelonLoader's generated assemblies and `Mods/ModSettings.dll` from your installation. It outputs `bin/Release/net6.0/AmbientLights.dll` and the accompanying `ambient-lights` folder. Building does not install files into the game.
+
+To check Harmony targets and parse the shipped JSON files against a local installation (requires the .NET 9 SDK):
+
+```powershell
+dotnet run --project tools/CompatibilityCheck -- 'C:/Program Files (x86)/Steam/steamapps/common/TheLongDark' 'bin/Release/net6.0/AmbientLights.dll'
+```
+
+This metadata check does not execute the Unity player. In-game validation should cover entering and leaving mapped interiors, loading a save, changing presets, day/night and weather transitions, and both lighting-manager types. True Sun remains experimental.
 
 ## Main Features
 * Lighting intensity (how bright the light is), range (how far the light reaches) and color changes depending of what's happening outside.
@@ -54,6 +78,13 @@ Inside the ambient-lights folder there are three types of files: scene_*, global
 ![Tweaked aurora powered lights](https://raw.githubusercontent.com/Xpazeman/tld-ambient-lights/master/screenshots/aurora_1.jpg "Tweaked aurora powered lights")
 
 ## Updates
+
+### v3.0.1
+* Updated for TLD Survival 2.60 and MelonLoader 0.7.2; replaced the removed TinyJSON API with System.Text.Json.
+* Fixed invalid Harmony instance arguments and interior-lighting manager initialization.
+* Cleared scene state and created lights on unload; deferred lighting updates until weather data is ready.
+* Fixed shared orientation values being multiplied once per emitter.
+* Repaired missing commas in 11 scene configurations and added build/compatibility checks.
 
 ### v2.8.1
 * FIX: Tweaked config files for Dam and Lower Dam so windows aren't so bright when using high ambience level settings

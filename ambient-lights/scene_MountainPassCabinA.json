@@ -2,28 +2,28 @@
 	"emitters": [
 		{
 			"description":"Window",
-			"position":"-2.16, 1.43, -2.12"
+			"position":"-2.16, 1.43, -2.12",
 			"orientation":"south",
 			"size": 0.8,
 			"cover": 0
 		},
 		{
 			"description":"Small window",
-			"position":"1.12, 1.39, 3.95"
+			"position":"1.12, 1.39, 3.95",
 			"orientation":"west",
 			"size": 0.4,
 			"cover": 0
 		},
 		{
 			"description":"Tiny window",
-			"position":"2.17, 1.45, 1.21"
+			"position":"2.17, 1.45, 1.21",
 			"orientation":"east",
 			"size": 0.2,
 			"cover": 0
 		},
 		{
 			"description":"Small window",
-			"position":"5.01, 1.46, -3.96"
+			"position":"5.01, 1.46, -3.96",
 			"orientation":"east",
 			"size": 0.3,
 			"cover": 0

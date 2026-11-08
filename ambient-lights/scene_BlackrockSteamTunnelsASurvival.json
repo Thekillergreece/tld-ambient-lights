@@ -2,14 +2,14 @@
 	"emitters": [
 		{
 			"description":"Exit left frame",
-			"position":"0.88, -13.67, -108.09"
+			"position":"0.88, -13.67, -108.09",
 			"orientation":"south",
 			"size": 0.4,
 			"cover": 0
 		},
 		{
 			"description":"Exit right frame",
-			"position":"0.08, -13.67, -108.75"
+			"position":"0.08, -13.67, -108.75",
 			"orientation":"south",
 			"size": 0.4,
 			"cover": 0

@@ -2,7 +2,7 @@
 //using Il2CppSystem.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using MelonLoader.TinyJSON;
+using System.Text.Json;
 using Il2Cpp;
 
 namespace AmbientLights
@@ -90,6 +90,12 @@ namespace AmbientLights
 
     internal class LightConfig
     {
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            IncludeFields = true,
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
         public readonly string[] cardinal = { "north", "south", "east", "west" };
 
         public bool ready = false;
@@ -113,10 +119,17 @@ namespace AmbientLights
         {
             scene = AmbientLights.currentScene;
 
-            LoadGlobalConfig();
-            LoadSceneConfig();
-
-            MergeConfigs();
+            try
+            {
+                LoadGlobalConfig();
+                LoadSceneConfig();
+                MergeConfigs();
+            }
+            catch (Exception exception) when (exception is JsonException || exception is IOException || exception is UnauthorizedAccessException)
+            {
+                ready = false;
+                ALUtils.Log("Unable to load lighting config for " + scene + ": " + exception.Message, false, true);
+            }
         }
 
         public void Reload()
@@ -130,7 +143,7 @@ namespace AmbientLights
 
             if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile)))
             {
-                data = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile))).Make<SceneConfig>();
+                data = JsonSerializer.Deserialize<SceneConfig>(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile)), JsonOptions);
             }
             else
             {
@@ -141,9 +154,11 @@ namespace AmbientLights
 
         private void LoadGlobalConfig()
         {
+            periodsConfig = null;
+            weathersConfig = null;
             if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json")))
             {
-                weathersConfig = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json"))).Make<Dictionary<string, WeatherMod>>();
+                weathersConfig = JsonSerializer.Deserialize<Dictionary<string, WeatherMod>>(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json")), JsonOptions);
             }
             else
             {
@@ -153,7 +168,7 @@ namespace AmbientLights
 
             if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json")))
             {
-                periodsConfig = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json"))).Make<Dictionary<string, AmbPeriod>>();
+                periodsConfig = JsonSerializer.Deserialize<Dictionary<string, AmbPeriod>>(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json")), JsonOptions);
             }
             else
             {
@@ -172,11 +187,7 @@ namespace AmbientLights
                 if (weathersConfig != null)
                     data.weathers = weathersConfig;
 
-                ready = true;
-                if (!GameLights.gameLightsReady)
-                {
-                    GameLights.AddGameLights();
-                }
+                ready = periodsConfig != null && weathersConfig != null && data.emitters != null;
             }
         }
 
@@ -206,7 +217,7 @@ namespace AmbientLights
 
         internal LightSet GetCurrentLightSet()
         {
-            if (data == null)
+            if (!ready || data == null || !AmbientLights.EnvironmentReady)
             {
                 return null;
             }

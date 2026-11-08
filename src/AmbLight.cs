@@ -121,8 +121,13 @@ namespace AmbientLights
 
         internal void SetLightParams(LightOrientation set, bool instantApply = false)
         {
-            set.intensity *= ALUtils.GetIntensityModifier();
-            set.range *= ALUtils.GetRangeModifier();
+            // Each orientation is shared by multiple emitters. Keep its base values unchanged.
+            set = new LightOrientation
+            {
+                color = set.color,
+                intensity = set.intensity * ALUtils.GetIntensityModifier(),
+                range = set.range * ALUtils.GetRangeModifier()
+            };
 
             currentSet = set;
 

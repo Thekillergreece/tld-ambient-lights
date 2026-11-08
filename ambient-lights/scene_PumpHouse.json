@@ -2,21 +2,21 @@
 	"emitters": [
 		{
 			"description":"Window",
-			"position":"23.36, 56.68, 62.90"
+			"position":"23.36, 56.68, 62.90",
 			"orientation":"east",
 			"size": 0.6,
 			"cover": 0
 		},
 		{
 			"description":"Window",
-			"position":"-3.25, 2.98, 4.04"
+			"position":"-3.25, 2.98, 4.04",
 			"orientation":"south",
 			"size": 0.4,
 			"cover": 0
 		},
 		{
 			"description":"Small window",
-			"position":"4.43, 4.29, 1.92"
+			"position":"4.43, 4.29, 1.92",
 			"orientation":"west",
 			"size": 0.6,
 			"cover": 0

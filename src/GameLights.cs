@@ -10,7 +10,7 @@ namespace AmbientLights
 {
     class GameLights
     {
-        public static GameObject gameLights = new GameObject();
+        public static GameObject gameLights = null;
 
         public static List<Light> gameLightsList = new List<Light>();
         public static List<Light> gameSpotLightsList = new List<Light>();
@@ -39,10 +39,13 @@ namespace AmbientLights
 
         internal static void AddGameLights()
         {
-            if (AmbientLights.config == null || !AmbientLights.config.ready)
+            if (gameLightsReady || AmbientLights.config == null || !AmbientLights.config.ready || AmbientLights.currentLightSet == null)
             {
                 return;
             }
+
+            mngr = UnityEngine.Object.FindObjectOfType<InteriorLightingManager>();
+            darkMngr = UnityEngine.Object.FindObjectOfType<DarkLightingManager>();
 
             //if (AmbientLights.debugVer)
             //    Debug.Log("[ambient-lights] InteriorLightingManager initialized.");
@@ -384,13 +387,12 @@ namespace AmbientLights
 
             foreach (GameObject rootObj in rObjs)
             {
-                Renderer childRenderer = rootObj.GetComponent<Renderer>();
                 Renderer[] allRenderers = rootObj.GetComponentsInChildren<Renderer>();
-                //allRenderers.Add(childRenderer);
-                allRenderers.AddItem(childRenderer);
 
                 foreach (Renderer renderer in allRenderers)
                 {
+                    if (renderer == null)
+                        continue;
                     if (!renderer.gameObject.name.Contains("_XPZ_Window"))
                     {
                         foreach (Material mat in renderer.materials)
@@ -576,16 +578,6 @@ namespace AmbientLights
                 return;
             }
 
-            if (defaultColorDay == null)
-            {
-                defaultColorDay = TodLightInstance.m_AmbientIndoorsDay;
-            }
-
-            if (defaultColorNight == null)
-            {
-                defaultColorNight = TodLightInstance.m_AmbientIndoorsNight;
-            }
-
             multiplier *= Settings.options.ambienceLevel * AmbientLights.currentLightSet.intMod * AmbientLights.config.data.options.ambient_intensity_multiplier * AmbientLights.globalAmbienceLevel * ALUtils.GetIntensityNightMod();
 
             TodLightInstance.m_AmbientIndoorsDay = AmbientLights.currentLightSet.ambientDayColor;
@@ -616,7 +608,7 @@ namespace AmbientLights
         /****** DARK MANAGER ******/
         internal static void UpdateConstantLights()
         {
-            if (darkMngr.m_ConstantLightList.Count > 0)
+            if (darkMngr != null && darkMngr.m_ConstantLightList != null && darkMngr.m_ConstantLightList.Count > 0)
             {
                 for (int i = 0; i < darkMngr.m_ConstantLightList.Count; i++)
                 {
@@ -627,7 +619,7 @@ namespace AmbientLights
 
         internal static void UpdateColouredLights()
         {
-            if (darkMngr.m_ColouredLightList.Count > 0)
+            if (darkMngr != null && darkMngr.m_ColouredLightList != null && darkMngr.m_ColouredLightList.Count > 0)
             {
                 for (int i = 0; i < darkMngr.m_ColouredLightList.Count; i++)
                 {
@@ -642,7 +634,7 @@ namespace AmbientLights
 
         internal static void UpdateNonTodLights()
         {
-            if (darkMngr.m_NonTodLightList.Count > 0)
+            if (darkMngr != null && darkMngr.m_NonTodLightList != null && darkMngr.m_NonTodLightList.Count > 0)
             {
                 for (int i = 0; i < darkMngr.m_NonTodLightList.Count; i++)
                 {
@@ -655,7 +647,7 @@ namespace AmbientLights
         {
             UpdateSun();
 
-            if (darkMngr.m_LightShaftList.Count > 0)
+            if (darkMngr != null && darkMngr.m_LightShaftList != null && darkMngr.m_LightShaftList.Count > 0)
             {
                 for (int i = 0; i < darkMngr.m_LightShaftList.Count; i++)
                 {
@@ -697,13 +689,12 @@ namespace AmbientLights
 
             foreach (GameObject rootObj in rObjs)
             {
-                MeshRenderer childRenderer = rootObj.GetComponent<MeshRenderer>();
                 MeshRenderer[] allRenderers = rootObj.GetComponentsInChildren<MeshRenderer>();
-                //allRenderers.Add(childRenderer);
-                allRenderers.AddItem(childRenderer);
 
                 foreach (MeshRenderer renderer in allRenderers)
                 {
+                    if (renderer == null)
+                        continue;
 
                     //Remove glass from sun layer
                     Material[] mats = renderer.materials;

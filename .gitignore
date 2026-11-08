@@ -6,5 +6,8 @@
 *.CopyComplete
 obj/*
 bin/*
+**/obj/
+**/bin/
+dist/
 screenshots/template-h.psd
 .vs/*

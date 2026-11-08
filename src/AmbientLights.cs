@@ -35,6 +35,14 @@ namespace AmbientLights
 
         public static LightSet currentLightSet;
 
+        internal static bool EnvironmentReady => GameManager.GetTimeOfDayComponent() != null
+            && GameManager.GetWeatherComponent() != null
+            && GameManager.GetUniStorm() != null
+            && GameManager.GetUniStorm().GetActiveTODState() != null;
+
+        internal static bool CanUpdateGameLights => config != null && config.ready
+            && currentLightSet != null && GameLights.gameLightsReady;
+
         public override void OnInitializeMelon()
         {
             Settings.OnLoad();
@@ -50,6 +58,7 @@ namespace AmbientLights
             lightList.Clear();
                         
             config = null;
+            currentLightSet = null;
 
             lightsInit = false;
 
@@ -74,6 +83,10 @@ namespace AmbientLights
             {
                 UnityEngine.Object.Destroy(light.go);
             }
+            lightList.Clear();
+            lightsInit = false;
+            currentLightSet = null;
+            config = null;
 
             if (!reload)
             {
@@ -88,6 +101,13 @@ namespace AmbientLights
                 GameLights.gameLightsReady = false;
 
                 UnityEngine.Object.Destroy(GameLights.gameLights);
+                UnityEngine.Object.Destroy(GameLights.theSun);
+                GameLights.gameLights = null;
+                GameLights.theSun = null;
+                GameLights.sunlight = null;
+                GameLights.mngr = null;
+                GameLights.darkMngr = null;
+                GameLights.gameAmbientLight = null;
             }
         }
 
@@ -103,7 +123,7 @@ namespace AmbientLights
                 config = new LightConfig();
                 config.Load();
 
-                if (config.ready)
+                if (config.ready && EnvironmentReady)
                     currentLightSet = config.GetCurrentLightSet();
 
                 SetupLights();
@@ -131,7 +151,7 @@ namespace AmbientLights
                 lightsInit = true;
                 MaybeUpdateLightsToPeriod(true);
 
-                if (!GameLights.gameLightsReady)
+                if (currentLightSet != null && !GameLights.gameLightsReady)
                 {
                     GameLights.AddGameLights();
                 }
@@ -145,7 +165,7 @@ namespace AmbientLights
 
         public static void MaybeUpdateLightsToPeriod(bool forceUpdate = false)
         {
-            if (lightsInit && timeInit && weatherInit && config.ready)
+            if (lightsInit && config != null && config.ready && EnvironmentReady)
             {
                 //Generate lightsets for emitters based on time, weather and transition progress
                 LightSet lightSet = config.GetCurrentLightSet();
@@ -153,9 +173,12 @@ namespace AmbientLights
                 if (lightSet != null)
                 {
                     currentLightSet = lightSet;
+                    if (!GameLights.gameLightsReady)
+                        GameLights.AddGameLights();
                     foreach (var light in lightList)
                     {
-                        LightOrientation set = lightSet.orientations[light.orientation];
+                        if (!lightSet.orientations.TryGetValue(light.orientation, out LightOrientation set))
+                            set = lightSet.orientations["default"];
 
                         if (set != null)
                         {

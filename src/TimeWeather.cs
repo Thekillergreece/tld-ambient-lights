@@ -1,4 +1,4 @@
-﻿using Harmony;
+
 using UnityEngine;
 using Il2Cpp;
 
@@ -62,7 +62,7 @@ namespace AmbientLights
             float transTime = uniStorm.m_WeatherTransitionTime;
             float transTimeElapsed = uniStorm.m_SecondsSinceLastWeatherChange;
 
-            currentWeatherPct = Mathf.Clamp01(transTimeElapsed / transTime);
+            currentWeatherPct = transTime > 0f ? Mathf.Clamp01(transTimeElapsed / transTime) : 1f;
 
             Weather wth = GameManager.GetWeatherComponent();
 
